@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matriz Curricular Interativa - Sistemas de Informação</title>
+    
+    <!-- Fontes Futuristas -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #050505;
+            --panel-bg: #111;
+            --text-main: #e0e0e0;
+            --cyan: #00f3ff;
+            --purple: #bc13fe;
+            --green: #00ff66;
+            --orange: #ffaa00;
+            --border-color: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            color: var(--cyan);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+        }
+
+        p.subtitle {
+            font-size: 1.2rem;
+            color: #888;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .career-selector {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            font-family: 'Orbitron', sans-serif;
+            background: rgba(17, 17, 17, 0.8);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Cores das Trilhas */
+        button[data-career="software"].active { border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 15px rgba(0, 243, 255, 0.4) inset; }
+        button[data-career="data"].active { border-color: var(--purple); color: var(--purple); box-shadow: 0 0 15px rgba(188, 19, 254, 0.4) inset; }
+        button[data-career="infra"].active { border-color: var(--green); color: var(--green); box-shadow: 0 0 15px rgba(0, 255, 102, 0.4) inset; }
+        button[data-career="management"].active { border-color: var(--orange); color: var(--orange); box-shadow: 0 0 15px rgba(255, 170, 0, 0.4) inset; }
+        button[data-career="all"].active { border-color: #fff; color: #fff; box-shadow: 0 0 15px rgba(255, 255, 255, 0.4) inset; }
+
+        .matrix {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .period {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-top: 3px solid #333;
+            padding: 15px;
+            position: relative;
+        }
+
+        .period h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #777;
+            border-bottom: 1px solid #222;
+            padding-bottom: 5px;
+        }
+
+        .course {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: transparent;
+            transition: all 0.4s ease;
+        }
+
+        /* Estados Ativos */
+        .course.active-software { border-color: var(--cyan); color: #fff; text-shadow: 0 0 5px var(--cyan); box-shadow: 0 0 10px rgba(0, 243, 255, 0.1); }
+        .course.active-software::before { background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+
+        .course.active-data { border-color: var(--purple); color: #fff; text-shadow: 0 0 5px var(--purple); box-shadow: 0 0 10px rgba(188, 19, 254, 0.1); }
+        .course.active-data::before { background: var(--purple); box-shadow: 0 0 10px var(--purple); }
+
+        .course.active-infra { border-color: var(--green); color: #fff; text-shadow: 0 0 5px var(--green); box-shadow: 0 0 10px rgba(0, 255, 102, 0.1); }
+        .course.active-infra::before { background: var(--green); box-shadow: 0 0 10px var(--green); }
+
+        .course.active-management { border-color: var(--orange); color: #fff; text-shadow: 0 0 5px var(--orange); box-shadow: 0 0 10px rgba(255, 170, 0, 0.1); }
+        .course.active-management::before { background: var(--orange); box-shadow: 0 0 10px var(--orange); }
+
+        .course.dimmed {
+            opacity: 0.15;
+            filter: grayscale(100%);
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Skill Tree: Sistemas de Informação</h1>
+        <p class="subtitle">Mapeamento Curricular Orientado ao Mercado</p>
+    </header>
+
+    <div class="career-selector">
+        <button data-career="all" class="active">Visão Geral (Todas)</button>
+        <button data-career="software">Engenharia de Software</button>
+        <button data-career="data">Dados e Inteligência Artificial</button>
+        <button data-career="infra">Redes e Infraestrutura (DevOps)</button>
+        <button data-career="management">Gestão de Projetos (Tech Lead)</button>
+    </div>
+
+    <div class="matrix">
+        <!-- 1º Período -->
+        <div class="period">
+            <h2>01 // PERÍODO</h2>
+            <div class="course software data infra">Introdução à Programação</div>
+            <div class="course management software infra data">Sistemas de Informação</div>
+            <div class="course management">Princípios da Administração I</div>
+            <div class="course data infra software">Pré-Cálculo</div>
+            <div class="course management">Ética e Legislação</div>
+        </div>
+
+        <!-- 2º Período -->
+        <div class="period">
+            <h2>02 // PERÍODO</h2>
+            <div class="course software data infra">Algoritmos e Est. de Dados I</div>
+            <div class="course software data">POO I</div>
+            <div class="course infra software">Sistemas Digitais e Circuitos</div>
+            <div class="course data">Cálculo Diferencial e Integral I</div>
+            <div class="course management">Métodos e Técnicas de Pesquisa</div>
+        </div>
+
+        <!-- 3º Período -->
+        <div class="period">
+            <h2>03 // PERÍODO</h2>
+            <div class="course software data infra">Algoritmos e Est. de Dados II</div>
+            <div class="course software data infra">Banco de Dados I</div>
+            <div class="course software management">Engenharia de Software I</div>
+            <div class="course infra data">Arquitetura de Computadores</div>
+            <div class="course management">Contabilidade</div>
+        </div>
+
+        <!-- 4º Período -->
+        <div class="period">
+            <h2>04 // PERÍODO</h2>
+            <div class="course software data">POO II</div>
+            <div class="course software">Programação Web</div>
+            <div class="course infra software">Sistemas Operacionais</div>
+            <div class="course data software">Matemática Discreta</div>
+            <div class="course data">Álgebra Linear e Geo. Analítica</div>
+        </div>
+
+        <!-- 5º Período -->
+        <div class="period">
+            <h2>05 // PERÍODO</h2>
+            <div class="course software management">Engenharia de Software II</div>
+            <div class="course infra software">Redes de Computadores I</div>
+            <div class="course data">Probabilidade e Estatística</div>
+            <div class="course management infra data">Governança de TI</div>
+            <div class="course software data infra management">Optativa I</div>
+        </div>
+
+        <!-- 6º Período -->
+        <div class="period">
+            <h2>06 // PERÍODO</h2>
+            <div class="course software">Prog. para Dispositivos Móveis</div>
+            <div class="course infra software data">Sistemas Distribuídos</div>
+            <div class="course data software">Projeto e Análise de Algoritmos</div>
+            <div class="course data management">Sistemas de Apoio à Decisão</div>
+            <div class="course software data infra management">Optativa II</div>
+        </div>
+
+        <!-- 7º Período -->
+        <div class="period">
+            <h2>07 // PERÍODO</h2>
+            <div class="course data software">Inteligência Artificial</div>
+            <div class="course software management">Interface Humano-Computador</div>
+            <div class="course management software infra">Gestão de Projetos</div>
+            <div class="course software data infra management">TCC I</div>
+            <div class="course software data infra management">Optativa III</div>
+        </div>
+
+        <!-- 8º Período -->
+        <div class="period">
+            <h2>08 // PERÍODO</h2>
+            <div class="course software">Qualidade de Software</div>
+            <div class="course management software">Empreendedorismo</div>
+            <div class="course software data infra management">TCC II</div>
+            <div class="course software data infra management">Optativa IV</div>
+        </div>
+    </div>
+
+    <script>
+        const buttons = document.querySelectorAll('.career-selector button');
+        const courses = document.querySelectorAll('.course');
+
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active de todos os botões
+                buttons.forEach(b => b.classList.remove('active'));
+                // Adiciona active no botão clicado
+                btn.classList.add('active');
+
+                const career = btn.getAttribute('data-career');
+
+                courses.forEach(course => {
+                    // Limpa classes anteriores
+                    course.classList.remove('dimmed', 'active-software', 'active-data', 'active-infra', 'active-management');
+
+                    if (career === 'all') {
+                        // Modo visão geral: tudo normal, sem cores ativas e sem dim
+                        course.style.opacity = '1';
+                        course.style.filter = 'none';
+                    } else {
+                        if (course.classList.contains(career)) {
+                            // Se a disciplina pertence à carreira, ativa a classe de cor
+                            course.classList.add(`active-${career}`);
+                        } else {
+                            // Se não pertence, escurece
+                            course.classList.add('dimmed');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
